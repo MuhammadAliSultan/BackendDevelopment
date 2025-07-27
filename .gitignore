@@ -11,6 +11,6 @@
 *_BASE_*.txt
 *_LOCAL_*.txt
 *_REMOTE_*.txt
-//i want to add .env to .gitignore
+# i want to add .env to .gitignore
 .env
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Git
