@@ -1,14 +1,21 @@
-import multer from "multer"
+import multer from "multer";
+import fs from "fs";
+import path from "path";
 
+// Define absolute upload path
+const uploadPath = path.resolve("Public", "temp");
+
+// Ensure the folder exists
+fs.mkdirSync(uploadPath, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '../../Public/temp')
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix)
-  }
-})
+    const uniqueName = `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  },
+});
 
 export const upload = multer({ storage });
