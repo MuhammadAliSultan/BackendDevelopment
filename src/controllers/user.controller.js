@@ -4,6 +4,7 @@ import {User} from "../models/user.model.js"
 import { uploaderOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { upload } from "../middlewares/multer.middlerware.js";
+import fs from 'fs'
 
 const  registerUser=AsyncHandler(async(req,res)=>{
    const {userName,email,password,fullName}=req.body ;
@@ -16,13 +17,26 @@ const  registerUser=AsyncHandler(async(req,res)=>{
    const existingUser=await User.findOne({
     $or:[{email}, {userName}]
    })
-   if(existingUser){
-    throw new ApiError(409,"Data with this username or email already exists");
-   }
+
+    const avatarLocalPath=req.files?.avatar[0].path;
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path || "";
 
 
-   const avatarLocalPath=req.files?.avatar[0].path;
-   const coverImageLocalPath = req.files?.coverImage?.[0]?.path || "";
+   if (existingUser) {
+  // ⚠️ Cleanup temp files before throwing error
+  if (fs.existsSync(avatarLocalPath)) {
+    fs.unlinkSync(avatarLocalPath);
+    console.log("🗑️ Deleted avatar due to existing user");
+  }
+  if (fs.existsSync(coverImageLocalPath)) {
+    fs.unlinkSync(coverImageLocalPath);
+    console.log("🗑️ Deleted coverImage due to existing user");
+  }
+
+  throw new ApiError(409, "Data with this username or email already exists");
+}
+
+
 
 
    if(!avatarLocalPath){
