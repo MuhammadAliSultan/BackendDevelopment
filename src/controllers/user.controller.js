@@ -172,10 +172,33 @@ return res.status(200)
 
 })
 
+const changeCurrentPassword=AsyncHandler(async(req,res)=>{
+  const {oldPassword,newPassword,confirmPassword}=req.body
+  if(newPassword!==confirmPassword){
+    throw new ApiError(400,"Password and Confirm Password does not match")
+  }
+  const user=await User.findById(req.user._id)
+  const passwordValidation=user.isPasswordCorrect(oldPassword)
+  if(!passwordValidation){
+    throw new ApiError(400,"Old Password is incorrect")
+  }
+  user.password=newPassword
+  await user.save(
+    {
+    validateBeforeSave:false
+    }
+  )
+  return res.status(200)
+  .json(new ApiResponse(200,{},"Password Changed Successfully"))
+}
+)
+
+
 export {
   registerUser,
   loginUser,
   logOutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  changeCurrentPassword
 
 }
