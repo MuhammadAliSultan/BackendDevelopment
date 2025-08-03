@@ -193,12 +193,81 @@ const changeCurrentPassword=AsyncHandler(async(req,res)=>{
 }
 )
 
+const updateUserInfo=AsyncHandler(async(req,res)=>{
+  const {fullName,email}=req.body
+  if(!fullName||!email){
+    throw new ApiError(400,"Please fill all the fields")
+  }
+      const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullName,
+                email
+            }
+        },
+        {new: true}
+        
+    ).select("-password")
+  
+})
 
+const getCurrentUser=AsyncHandler(async(req,res)=>{
+  const user=await User.findById(req.user._id).select("-password")
+  return res.status(200)
+  .json(new ApiResponse(200,user,"User Found"))
+
+})
+
+const updateAvatar=AsyncHandler(async(req,res)=>{
+  const avatarLocalPath=req.file.path
+  if(!avatarLocalPath){
+    throw new ApiError(400,"Please Provide Avatar")
+  }
+  const avatar= await uploaderOnCloudinary(avatarLocalPath)
+  if(!avatar.url){
+    throw new ApiError(400,"Avatar Upload Failed")
+  }
+  const user=await User.findByIdAndUpdate(req.user._id,{$set:{
+    avatar:avatar.url
+  }}, {new:true})
+
+   return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "Avatar image updated successfully")
+    )
+})
+
+
+const updateCoverImage=AsyncHandler(async(req,res)=>{
+  const coverImageLocalPath=req.file.path
+  if(!coverImageLocalPath){
+    throw new ApiError(400,"Please Provide Avatar")
+  }
+  const coverImage= await uploaderOnCloudinary(coverImageLocalPath)
+  if(!avatar.url){
+    throw new ApiError(400,"coverImage Upload Failed")
+  }
+  const user=await User.findByIdAndUpdate(req.user._id,{$set:{
+    coverImage:coverImage.url
+  }}, {new:true})
+
+   return res
+    .status(200)
+    .json(
+        new ApiResponse(200, user, "coverImage  updated successfully")
+    )
+})
 export {
   registerUser,
   loginUser,
   logOutUser,
   refreshAccessToken,
-  changeCurrentPassword
+  changeCurrentPassword,
+  updateAvatar,
+  updateCoverImage,
+  getCurrentUser,
+  updateUserInfo
 
 }
