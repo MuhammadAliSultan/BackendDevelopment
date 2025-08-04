@@ -223,16 +223,30 @@ const getCurrentUser=AsyncHandler(async(req,res)=>{
 
 const updateAvatar=AsyncHandler(async(req,res)=>{
   const avatarLocalPath=req.file.path
+  console.log("req.file:", req.file);
+  console.log("Avatar local path:", avatarLocalPath);
+
+
   if(!avatarLocalPath){
     throw new ApiError(400,"Please Provide Avatar")
   }
-  const avatar= await uploaderOnCloudinary(avatarLocalPath)
+  const avatarImg= await uploaderOnCloudinary(avatarLocalPath)
+  console.log(avatarImg)
   if(!avatar.url){
     throw new ApiError(400,"Avatar Upload Failed")
   }
-  const user=await User.findByIdAndUpdate(req.user._id,{$set:{
-    avatar:avatar.url
-  }}, {new:true})
+  // Step 1: Unset the old value
+await User.findByIdAndUpdate(req.user._id, {
+  $unset: { avatar: 1 }
+});
+
+// Step 2: Set the new value
+const user = await User.findByIdAndUpdate(
+  req.user._id,
+  { $set: { avatar: avatarImg } },
+  { new: true }
+);
+
 
    return res
     .status(200)
@@ -247,13 +261,22 @@ const updateCoverImage=AsyncHandler(async(req,res)=>{
   if(!coverImageLocalPath){
     throw new ApiError(400,"Please Provide Avatar")
   }
-  const coverImage= await uploaderOnCloudinary(coverImageLocalPath)
-  if(!avatar.url){
+  const coverImg= await uploaderOnCloudinary(coverImageLocalPath)
+  if(!coverImg){
     throw new ApiError(400,"coverImage Upload Failed")
   }
-  const user=await User.findByIdAndUpdate(req.user._id,{$set:{
-    coverImage:coverImage.url
-  }}, {new:true})
+ // Step 1: Unset the old value
+await User.findByIdAndUpdate(req.user._id, {
+  $unset: { coverImage: 1 }
+});
+
+// Step 2: Set the new value
+const user = await User.findByIdAndUpdate(
+  req.user._id,
+  { $set: { coverImage: coverImg } },
+  { new: true }
+);
+
 
    return res
     .status(200)
@@ -347,46 +370,58 @@ const getUserChannelProfile=AsyncHandler(async(req,res)=>{
 
 })
 
-const getUserHistory=AsyncHandler(async(req,res)=>{
-  const user=await User.aggregate({
-    $match:{
-      _id:new mongoose.Schema.ObjectId(req.user._id)
+const getUserHistory = AsyncHandler(async (req, res) => {
+  console.log("Getting Data");
+
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id)
+      }
     },
-    $lookup:{
-      from:"videos",
-      localField:"watchHistory",
-      foreignField:"_id",
-      as:"watchHistory",
-      pipeline:[
-        {
-          $lookup:{
-            from:"users",
-            localField:"owner",
-            foreignField:"_id",
-            as:"owner",
-            pipeline:[
-              {
-                $project:{
-                  userName:1,
-                  fullName:1,
-                  avatar:1,
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    userName: 1,
+                    fullName: 1,
+                    avatar: 1
+                  }
                 }
-              }
-            ]
-          },
-            $addFields:{
-            owner:{
-            $first:"$owner"
+              ]
             }
-      
+          },
+          {
+            $addFields: {
+              owner: { $first: "$owner" }
             }
           }
-       ]
+        ]
+      }
     }
-    
-  })
+  ]);
 
-})
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      user[0]?.watchHistory || [],
+      "Watch history fetched successfully"
+    )
+  );
+});
+
 export {
   registerUser,
   loginUser,

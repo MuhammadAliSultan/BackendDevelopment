@@ -1,24 +1,47 @@
+// import mongoose, {isValidObjectId} from "mongoose"
+// import {Video} from "../models/video.model.js"
+// import {User} from "../models/user.model.js"
+// import {ApiError} from "../utils/ApiError.js"
+// import {ApiResponse} from "../utils/ApiResponse.js"
+// import {asyncHandler} from "../utils/asyncHandler.js"
+// import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
-//routes import
-import userRouter from './routes/user.routes.js'
-import healthcheckRouter from "./routes/healthcheck.routes.js"
-import tweetRouter from "./routes/tweet.routes.js"
-import subscriptionRouter from "./routes/subscription.routes.js"
-import videoRouter from "./routes/video.routes.js"
-import commentRouter from "./routes/comment.routes.js"
-import likeRouter from "./routes/like.routes.js"
-import playlistRouter from "./routes/playlist.routes.js"
-import dashboardRouter from "./routes/dashboard.routes.js"
 
-//routes declaration
-app.use("/api/v1/healthcheck", healthcheckRouter)
-app.use("/api/v1/users", userRouter)
-app.use("/api/v1/tweets", tweetRouter)
-app.use("/api/v1/subscriptions", subscriptionRouter)
-app.use("/api/v1/videos", videoRouter)
-app.use("/api/v1/comments", commentRouter)
-app.use("/api/v1/likes", likeRouter)
-app.use("/api/v1/playlist", playlistRouter)
-app.use("/api/v1/dashboard", dashboardRouter)
+// const getAllVideos = asyncHandler(async (req, res) => {
+//     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+//     //TODO: get all videos based on query, sort, pagination
+// })
 
-// http://localhost:8000/api/v1/users/register
+// const publishAVideo = asyncHandler(async (req, res) => {
+//     const { title, description} = req.body
+//     // TODO: get video, upload to cloudinary, create video
+// })
+
+// const getVideoById = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params
+//     //TODO: get video by id
+// })
+
+// const updateVideo = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params
+//     //TODO: update video details like title, description, thumbnail
+
+// })
+
+// const deleteVideo = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params
+//     //TODO: delete video
+// })
+
+// const togglePublishStatus = asyncHandler(async (req, res) => {
+//     const { videoId } = req.params
+// })
+
+// export {
+//     getAllVideos,
+//     publishAVideo,
+//     getVideoById,
+//     updateVideo,
+//     deleteVideo,
+//     togglePublishStatus
+// }
