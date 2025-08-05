@@ -1,17 +1,28 @@
-// import { Router } from 'express';
-// import {
-//     createTweet,
-//     deleteTweet,
-//     getUserTweets,
-//     updateTweet,
-// } from "../controllers/tweet.controller.js"
-// import {verifyJWT} from "../middlewares/auth.middleware.js"
+// tweet.routes.js
 
-// const router = Router();
-// router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+import { Router } from "express";
+import {
+  createTweet,
+  getUserTweets,
+  updateTweet,
+  deleteTweet,
+} from "../controllers/tweet.controller.js";
+import { verifyJwt } from "../middlewares/auth.middleware.js";
 
-// router.route("/").post(createTweet);
-// router.route("/user/:userId").get(getUserTweets);
-// router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
+const router = Router();
 
-// export default router
+router.use(verifyJwt); // all routes below require authentication
+
+// ✅ Create tweet
+router.post("/createTweet", createTweet);
+
+// ✅ Get all tweets (with optional userId, sort, pagination via query)
+router.get("/", getUserTweets);
+
+// ✅ Update tweet
+router.patch("/:tweetId", updateTweet);
+
+// ✅ Delete tweet
+router.delete("/:tweetId", deleteTweet);
+
+export default router;

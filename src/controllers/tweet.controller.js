@@ -6,9 +6,9 @@ import { ApiResponse } from "../utils/apiResponse.js";
 
 
 const createTweet = AsyncHandler(async (req, res) => {
-  const { contentOfTweet } = req.body;
+  const { content} = req.body;
 
-  if (!contentOfTweet) {
+  if (!content) {
     throw new ApiError(400, "No content to be posted");
   }
 
@@ -19,13 +19,13 @@ const createTweet = AsyncHandler(async (req, res) => {
   }
 
   const tweet = await Tweet.create({
-    content: contentOfTweet,
+    content,
     owner: userId,
   });
 
   return res
-    .status(200)
-    .json(new ApiResponse(200, tweet, "Tweet created successfully"));
+    .status(201)
+    .json(new ApiResponse(201, tweet, "Tweet created successfully"));
 });
 
 const getUserTweets = AsyncHandler(async (req, res) => {
@@ -84,9 +84,9 @@ const getUserTweets = AsyncHandler(async (req, res) => {
 
 const updateTweet = AsyncHandler(async (req, res) => {
     const { tweetId } = req.params;
-    const { newContent } = req.body;
+    const { content } = req.body;
 
-    if (!tweetId || !newContent) {
+    if (!tweetId || !content) {
         throw new ApiError(400, "Tweet ID and new content are required");
     }
 
@@ -101,7 +101,7 @@ const updateTweet = AsyncHandler(async (req, res) => {
         throw new ApiError(403, "You are not authorized to update this tweet");
     }
 
-    tweet.content = newContent;
+    tweet.content = content;
     await tweet.save();
 
     return res
@@ -112,7 +112,7 @@ const updateTweet = AsyncHandler(async (req, res) => {
 
 const deleteTweet = AsyncHandler(async (req, res) => {
     const { tweetId } = req.params;
-    const { userId } = req.user._id;
+    const userId  = req.user?._id;
     if(!tweetId||!userId){
         throw new ApiError(400, "Tweet ID and user ID are required");
     }

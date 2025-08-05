@@ -1,42 +1,48 @@
-// import { Router } from 'express';
-// import {
-//     deleteVideo,
-//     getAllVideos,
-//     getVideoById,
-//     publishAVideo,
-//     togglePublishStatus,
-//     updateVideo,
-// } from "../controllers/video.controller.js"
-// import {verifyJWT} from "../middlewares/auth.middleware.js"
-// //import {upload} from "../middlewares/multer.middleware.js"
+// video.routes.js
 
-// const router = Router();
-// router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+import { Router } from "express";
+import {
+  deleteVideo,
+  getAllVideos,
+  getVideoById,
+  publishAVideo,
+  togglePublishStatus,
+  updateVideo,
+} from "../controllers/video.controller.js";
+import { verifyJwt } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middlerware.js";
 
-// router
-//     .route("/")
-//     .get(getAllVideos)
-//     .post(
-//         upload.fields([
-//             {
-//                 name: "videoFile",
-//                 maxCount: 1,
-//             },
-//             {
-//                 name: "thumbnail",
-//                 maxCount: 1,
-//             },
-            
-//         ]),
-//         publishAVideo
-//     );
+const router = Router();
 
-// router
-//     .route("/:videoId")
-//     .get(getVideoById)
-//     .delete(deleteVideo)
-//     .patch(upload.single("thumbnail"), updateVideo);
+router.use(verifyJwt); // all routes below require authentication
 
-// router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+// ✅ Publish a new video (multipart: videoFile + thumbnail)
+router.post(
+  "/createVideo",
+  upload.fields([
+    { name: "videoFile", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
+  publishAVideo
+);
 
-// export default router
+// ✅ Get all videos (with optional filters, sort, pagination)
+router.get("/", getAllVideos);
+
+// ✅ Get a single video by ID
+router.get("/:videoId", getVideoById);
+
+// ✅ Update video (thumbnail optional)
+router.patch(
+  "/:videoId",
+  upload.single("thumbnail"),
+  updateVideo
+);
+
+// ✅ Toggle publish status
+router.patch("/toggle/publish/:videoId", togglePublishStatus);
+
+// ✅ Delete video
+router.delete("/:videoId", deleteVideo);
+
+export default router;

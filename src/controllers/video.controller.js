@@ -63,7 +63,7 @@ const videoOptions={
     limit:parseInt(limit)
 };
 const result =await Video.aggregatePaginate(aggregate,videoOptions)
- const total = await Video.countDocuments(filter);
+ const total = await Video.countDocuments(result);
 return res.status(200).json(
     new ApiResponse(200, (result,total), "Fetched videos successfully")
   );
@@ -73,13 +73,13 @@ return res.status(200).json(
 const publishAVideo = AsyncHandler(async (req, res) => {
     const { title, description, duration } = req.body;
      const thumbnailPath = req.files?.thumbnail?.[0]?.path;
-  const videofilePath = req.files?.videofile?.[0]?.path;
+  const videofilePath = req.files?.videoFile?.[0]?.path;
 
   if (!thumbnailPath || !videofilePath) {
     throw new ApiError(400, "Both thumbnail and video file are required");
   }
 
-  if (!title || !description || !duration ) {
+  if (!title && !description && !duration ) {
     throw new ApiError(400, "All fields are required");
   }
   const thumbnailLink=await uploaderOnCloudinary(thumbnailPath)
@@ -149,13 +149,15 @@ const deleteVideo = AsyncHandler(async (req, res) => {
     if(!videoId){
         throw new ApiError(400,"Please fill all fields")
     }
-    if (video.videoOwner.toString() !== req.user._id.toString()) {
-    throw new ApiError(403, "You are not authorized to delete this video");
-  }
+    
     const video=await Video.findByIdAndDelete(videoId)
     if (!video) {
         throw new ApiError(404, "Video not found");
         }
+
+     if (video.videoOwner.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "You are not authorized to delete this video");
+  }   
     await Like.deleteMany({video:videoId});
     await Comment.deleteMany({video:videoId})
 
