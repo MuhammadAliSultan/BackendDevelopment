@@ -32,10 +32,9 @@ router.get("/", getAllVideos);
 // ✅ Get a single video by ID
 router.get("/:videoId", getVideoById);
 
-// ✅ Update video (thumbnail optional)
 router.patch(
   "/:videoId",
-  upload.single("thumbnail"),
+  upload.single("thumbnail"), // enables file upload
   updateVideo
 );
 

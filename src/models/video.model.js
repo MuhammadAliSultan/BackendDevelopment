@@ -1,9 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import aggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 // Define schema
 const videoSchema = new Schema({
-  videofile: {
+  videoFile: {
     type: String, // Fixed typo: 'typr' -> 'type'
     required: true,
   },
@@ -42,7 +42,7 @@ const videoSchema = new Schema({
 });
 
 // Plugin for pagination
-videoSchema.plugin(mongooseAggregatePaginate);
+videoSchema.plugin(aggregatePaginate);
 
 // Export model
 export const Video = mongoose.model("Video", videoSchema);
