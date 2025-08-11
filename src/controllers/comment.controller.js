@@ -3,7 +3,6 @@ import {Comment} from "../models/comment.model.js"
 import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-
 const getVideoComments = AsyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const { page = 1, limit = 10 } = req.query;
@@ -12,10 +11,12 @@ const getVideoComments = AsyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Video ID");
     }
 
+    const videoObjectId = new mongoose.Types.ObjectId(videoId);
+
     const comments = await Comment.aggregate([
         {
             $match: {
-                video: mongoose.Types.ObjectId(videoId)
+                video: videoObjectId
             }
         },
         { $sort: { createdAt: -1 } },
@@ -34,7 +35,7 @@ const getVideoComments = AsyncHandler(async (req, res) => {
             $project: {
                 _id: 1,
                 video: 1,
-                content: 1, // ✅ FIXED: use 'content' instead of 'comment'
+                content: 1,
                 createdAt: 1,
                 user: {
                     _id: "$user._id",
@@ -45,7 +46,7 @@ const getVideoComments = AsyncHandler(async (req, res) => {
         }
     ]);
 
-    const totalComments = await Comment.countDocuments({ video: videoId });
+    const totalComments = await Comment.countDocuments({ video: videoObjectId });
 
     return res.status(200).json(
         new ApiResponse(200, {
@@ -59,6 +60,7 @@ const getVideoComments = AsyncHandler(async (req, res) => {
         }, "Comments Retrieved Successfully")
     );
 });
+
 
 const addComment = AsyncHandler(async (req, res) => {
     const { content } = req.body;
@@ -103,10 +105,12 @@ const updateComment = AsyncHandler(async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(commentId)) {
     throw new ApiError(400, "Invalid comment ID format");
   }
+
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
+  
 
   if (comment.owner.toString() !== userId.toString()) {
     throw new ApiError(403, "You are not the owner of this comment");
@@ -116,20 +120,17 @@ const updateComment = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Content cannot be empty");
   }
 
-  comment.content = content.trim();
-  await comment.save();
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        _id: comment._id,
-        content: comment.content,
-        updatedAt: comment.updatedAt,
-      },
-      "Comment updated successfully"
-    )
-  );
+const updatedComment = await Comment.findByIdAndUpdate(
+  commentId,
+  { comment },
+  { new: true }
+);
+
+return res
+  .status(200)
+  .json(new ApiResponse(200, "Comment updated successfully", updatedComment));
+
 });
 
 const deleteComment = AsyncHandler(async (req, res) => {
