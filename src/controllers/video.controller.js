@@ -103,7 +103,7 @@ const publishAVideo = AsyncHandler(async (req, res) => {
     videoOwner: req.user._id, 
     isPublished: true // or false if you're allowing drafts
   })
-  console.log(video);
+  
   return res.status(200).
   json(new ApiResponse(200,video,"New vidoe created Successfully"))
     // TODO: get video, upload to cloudinary, create video
@@ -126,7 +126,7 @@ const getVideoById = AsyncHandler(async (req, res) => {
     throw new ApiError(404, "Video not found");
   }
 
-  console.log(video);
+  
 
   return res
     .status(200)

@@ -11,9 +11,8 @@ dotenv.config(
 
 connectDB()
 .then(() => {
-    console.log("Database connection established successfully.");
+    
     app.on("error",(error)=>{
-        console.log("Error loading --",error);
 
     })
     app.listen(process.env.PORT||8000,()=>{
