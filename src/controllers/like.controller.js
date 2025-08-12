@@ -28,7 +28,7 @@ const toggleVideoLike = AsyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, {}, "Video like toggled successfully"));
+        .json(new ApiResponse(200, "Video like toggled successfully",{}));
 });
 
 // Toggle Like for Comment
@@ -52,7 +52,7 @@ const toggleCommentLike = AsyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, {}, "Comment like toggled successfully"));
+        .json(new ApiResponse(200, "Comment like toggled successfully",{}));
 });
 
 // Toggle Like for Tweet
@@ -76,7 +76,7 @@ const toggleTweetLike = AsyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, {}, "Tweet like toggled successfully"));
+        .json(new ApiResponse(200, "Tweet like toggled successfully",{}));
 });
 
 // Get All Liked Videos (Aggregation)

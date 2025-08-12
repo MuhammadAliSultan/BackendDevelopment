@@ -46,11 +46,11 @@ const  registerUser=AsyncHandler(async(req,res)=>{
   // ⚠️ Cleanup temp files before throwing error
   if (fs.existsSync(avatarLocalPath)) {
     fs.unlinkSync(avatarLocalPath);
-    console.log("🗑️ Deleted avatar due to existing user");
+    
   }
   if (fs.existsSync(coverImageLocalPath)) {
     fs.unlinkSync(coverImageLocalPath);
-    console.log("🗑️ Deleted coverImage due to existing user");
+    
   }
 
   throw new ApiError(409, "Data with this username or email already exists");
@@ -67,7 +67,7 @@ const  registerUser=AsyncHandler(async(req,res)=>{
    }
    const pathAvatar=await uploaderOnCloudinary(avatarLocalPath)
    const pathCoverImage=await uploaderOnCloudinary(coverImageLocalPath)
-   console.log("paths ",pathAvatar,pathCoverImage)
+   
    const user=await User.create({
     
     userName:userName.toLowerCase(),
@@ -77,7 +77,7 @@ const  registerUser=AsyncHandler(async(req,res)=>{
     avatar:pathAvatar,
     coverImage:pathCoverImage
     });
-    console.log("User created ",user)
+    
     const userConfirmation=await User.findById(user._id).select(
         "-password -refreshToken"
     )
@@ -85,7 +85,6 @@ const  registerUser=AsyncHandler(async(req,res)=>{
     if(!userConfirmation){
         throw new ApiError(500,"Something went wrong User not found")
     }
-    console.log("User Confirmation",userConfirmation)
     return res.status(201).json(
     new ApiResponse(200,userConfirmation,"User created successfully")
     
@@ -100,25 +99,23 @@ const loginUser=AsyncHandler(async(req,res)=>{
   if(!email){
     throw new ApiError(400,"Please enter your email")
    }
-  console.log("Email and password ",email,password)
+  
   const user=await User.findOne({email})
   if(!user){
     throw new ApiError(400,"User not found")
     }
-    console.log("User found ",user)
+ 
   const passwordVerification=await user.isPasswordCorrect(password)
   if(!passwordVerification){
     throw new ApiError(401,"Incorrect password")
     }
-    console.log("Password verification ",passwordVerification)
+    
     
  const { accessToken, refreshToken } = await generateAccessTokenAndRefreshTokens(user._id);
 
- console.log("access and refresh token ",accessToken,refreshToken)
   const loggedInUser=await User.findById(user._id).select(
     "-password -refreshToken"
   )
-  console.log("To JSON:", JSON.stringify({ user: loggedInUser, accessToken, refreshToken }));
 
   return res
     .status(200)
@@ -139,7 +136,7 @@ const logOutUser=AsyncHandler(async(req,res)=>{
   await User.findByIdAndUpdate(req.user._id,
    { $unset:{refreshToken:1}},{new :true}
   )
-  console.log("logging out user")
+
 return res.status(200)
 .clearCookie("accessToken", options)
 .clearCookie("refreshToken", options)
@@ -225,15 +222,14 @@ const getCurrentUser=AsyncHandler(async(req,res)=>{
 
 const updateAvatar=AsyncHandler(async(req,res)=>{
   const avatarLocalPath=req.file.path
-  console.log("req.file:", req.file);
-  console.log("Avatar local path:", avatarLocalPath);
+
 
 
   if(!avatarLocalPath){
     throw new ApiError(400,"Please Provide Avatar")
   }
   const avatarImg= await uploaderOnCloudinary(avatarLocalPath)
-  console.log(avatarImg)
+
   if(!avatar.url){
     throw new ApiError(400,"Avatar Upload Failed")
   }
@@ -363,7 +359,6 @@ const getUserChannelProfile=AsyncHandler(async(req,res)=>{
 
   ])
 
-  console.log(" Channel: ",channel)
   if(!channel?.length){
     throw new ApiError(404,"Channel not found")
   }
@@ -373,7 +368,7 @@ const getUserChannelProfile=AsyncHandler(async(req,res)=>{
 })
 
 const getUserHistory = AsyncHandler(async (req, res) => {
-  console.log("Getting Data");
+  
 
   const user = await User.aggregate([
     {
